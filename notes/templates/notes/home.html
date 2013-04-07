@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+	<h2>This is the home</h2>
+	<h3>New Note Form</h3>
+	<form action="." method="POST">{% csrf_token %}
+		{{ note_form.as_p }}
+		<input type="submit" value="Save" class="btn btn-primary">
+	</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript">
+	/* Start of Functions */
+	function relatedErrorList(input) {
+		var preUL = $(input).parent().prev();
+		if(preUL && preUL.attr('class') == 'errorlist'){
+			return preUL;
+		}
+		var errorlist = $('<ul class="errorlist"></ul>');
+		input.parent().before(errorlist);
+		return errorlist;
+	}
+	function showErrors(input,errors){
+		var errorlist = relatedErrorList(input);
+		errorlist.empty();
+		$.each(errors,function(i,error){
+			errorlist.append('<li>'+ error + '</li>');
+		});
+	}
+	function validateInput(input){
+		$.post(
+			'/ajax/validate/?field=' + input.attr('id').replace('id_',''),
+			$('form').toArray(),
+			function(data){
+				showErrors(input,data.errors);	
+			}
+		);
+	}
+	/* End of Functions*/
+	$(function(){
+		$(':input').blur(function(){
+			validateInput($(this));
+		});
+	});
+</script>
+{% endblock %}
